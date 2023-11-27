@@ -1,0 +1,119 @@
+language ESSENCE' 1.0
+
+given initial: matrix indexed by [int(1..9), int(1..9)] of int(0..9)
+find sudoku: matrix indexed by [int(1..9), int(1..9)] of int(1..9)
+branching on [sudoku]
+such that and([allDiff(sudoku[i, ..]) /\ allDiff([sudoku[q3, i] | q3 : int(1..9)]) | i : int(1..9)])
+
+$ Conjure's
+$ {"finds": [{"Name": "sudoku"}], "givens": [{"Name": "initial"}], "enumGivens": [], "enumLettings": [],
+$  "lettings":
+$      [[{"Name": "D0"},
+$        {"Domain":
+$             {"DomainInt":
+$                  [{"TagInt": []},
+$                   [{"RangeBounded":
+$                         [{"Constant": {"ConstantInt": [{"TagInt": []}, 0]}},
+$                          {"Constant": {"ConstantInt": [{"TagInt": []}, 9]}}]}]]}}],
+$       [{"Name": "Id"},
+$        {"Domain":
+$             {"DomainInt":
+$                  [{"TagInt": []},
+$                   [{"RangeBounded":
+$                         [{"Constant": {"ConstantInt": [{"TagInt": []}, 1]}},
+$                          {"Constant": {"ConstantInt": [{"TagInt": []}, 3]}}]}]]}}],
+$       [{"Name": "D"},
+$        {"Domain":
+$             {"DomainInt":
+$                  [{"TagInt": []},
+$                   [{"RangeBounded":
+$                         [{"Constant": {"ConstantInt": [{"TagInt": []}, 1]}},
+$                          {"Constant": {"ConstantInt": [{"TagInt": []}, 9]}}]}]]}}]],
+$  "unnameds": [], "strategyQ": {"PickFirst": []}, "strategyA": {"Compact": []},
+$  "trailCompact": [[1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1]],
+$  "nameGenState": [["q", 4]], "nbExtraGivens": 0,
+$  "representations":
+$      [[{"Name": "sudoku"},
+$        {"DomainMatrix":
+$             [{"DomainInt":
+$                   [{"TagInt": []},
+$                    [{"RangeBounded":
+$                          [{"Constant": {"ConstantInt": [{"TagInt": []}, 1]}},
+$                           {"Constant": {"ConstantInt": [{"TagInt": []}, 9]}}]}]]},
+$              {"DomainMatrix":
+$                   [{"DomainInt":
+$                         [{"TagInt": []},
+$                          [{"RangeBounded":
+$                                [{"Constant": {"ConstantInt": [{"TagInt": []}, 1]}},
+$                                 {"Constant": {"ConstantInt": [{"TagInt": []}, 9]}}]}]]},
+$                    {"DomainInt":
+$                         [{"TagInt": []},
+$                          [{"RangeBounded":
+$                                [{"Constant": {"ConstantInt": [{"TagInt": []}, 1]}},
+$                                 {"Constant": {"ConstantInt": [{"TagInt": []}, 9]}}]}]]}]}]}],
+$       [{"Name": "initial"},
+$        {"DomainMatrix":
+$             [{"DomainInt":
+$                   [{"TagInt": []},
+$                    [{"RangeBounded":
+$                          [{"Constant": {"ConstantInt": [{"TagInt": []}, 1]}},
+$                           {"Constant": {"ConstantInt": [{"TagInt": []}, 9]}}]}]]},
+$              {"DomainMatrix":
+$                   [{"DomainInt":
+$                         [{"TagInt": []},
+$                          [{"RangeBounded":
+$                                [{"Constant": {"ConstantInt": [{"TagInt": []}, 1]}},
+$                                 {"Constant": {"ConstantInt": [{"TagInt": []}, 9]}}]}]]},
+$                    {"DomainInt":
+$                         [{"TagInt": []},
+$                          [{"RangeBounded":
+$                                [{"Constant": {"ConstantInt": [{"TagInt": []}, 0]}},
+$                                 {"Constant": {"ConstantInt": [{"TagInt": []}, 9]}}]}]]}]}]}]],
+$  "representationsTree":
+$      [[{"Name": "initial"},
+$        [{"rootLabel": null, "subForest": [{"rootLabel": null, "subForest": [{"rootLabel": null, "subForest": []}]}]}]],
+$       [{"Name": "sudoku"},
+$        [{"rootLabel": null, "subForest": [{"rootLabel": null, "subForest": [{"rootLabel": null, "subForest": []}]}]}]]],
+$  "originalDomains":
+$      [[{"Name": "initial"},
+$        {"DomainMatrix":
+$             [{"DomainInt":
+$                   [{"TagInt": []},
+$                    [{"RangeBounded":
+$                          [{"Constant": {"ConstantInt": [{"TagInt": []}, 1]}},
+$                           {"Constant": {"ConstantInt": [{"TagInt": []}, 9]}}]}]]},
+$              {"DomainMatrix":
+$                   [{"DomainInt":
+$                         [{"TagInt": []},
+$                          [{"RangeBounded":
+$                                [{"Constant": {"ConstantInt": [{"TagInt": []}, 1]}},
+$                                 {"Constant": {"ConstantInt": [{"TagInt": []}, 9]}}]}]]},
+$                    {"DomainInt":
+$                         [{"TagInt": []},
+$                          [{"RangeBounded":
+$                                [{"Constant": {"ConstantInt": [{"TagInt": []}, 0]}},
+$                                 {"Constant": {"ConstantInt": [{"TagInt": []}, 9]}}]}]]}]}]}],
+$       [{"Name": "sudoku"},
+$        {"DomainMatrix":
+$             [{"DomainInt":
+$                   [{"TagInt": []},
+$                    [{"RangeBounded":
+$                          [{"Constant": {"ConstantInt": [{"TagInt": []}, 1]}},
+$                           {"Constant": {"ConstantInt": [{"TagInt": []}, 9]}}]}]]},
+$              {"DomainMatrix":
+$                   [{"DomainInt":
+$                         [{"TagInt": []},
+$                          [{"RangeBounded":
+$                                [{"Constant": {"ConstantInt": [{"TagInt": []}, 1]}},
+$                                 {"Constant": {"ConstantInt": [{"TagInt": []}, 9]}}]}]]},
+$                    {"DomainInt":
+$                         [{"TagInt": []},
+$                          [{"RangeBounded":
+$                                [{"Constant": {"ConstantInt": [{"TagInt": []}, 1]}},
+$                                 {"Constant": {"ConstantInt": [{"TagInt": []}, 9]}}]}]]}]}]}]],
+$  "trailGeneralised":
+$      [[-7664346500530419402, -7192675493522547017], [9092536803251930328, 2190475569268010989],
+$       [-470434699053087012, -2236776109741974214], [6848431913455746050, 8321052327355587895],
+$       [3112183742403125386, -8296219775023500160], [5124870090185789772, -2282471698834465614],
+$       [-7659927816514995468, -3103293393149572189]],
+$  "trailVerbose": [], "trailRewrites": []}
