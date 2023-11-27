@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"math/rand"
 	"os"
 	"os/exec"
@@ -62,7 +62,7 @@ func printBlueLn(printStr string) {
 }
 
 func randomPermutation(numbers []int) []int {
-	rand.Seed(time.Now().UnixNano())
+	rand.New(rand.NewSource(time.Now().UnixNano()))
 
 	// Use Fisher-Yates shuffle algorithm to permute the slice
 	for i := len(numbers) - 1; i > 0; i-- {
@@ -104,7 +104,7 @@ func readParam(filePath string) (Sudoku, error) {
 	}
 	defer file.Close()
 
-	content, err := ioutil.ReadAll(file)
+	content, err := io.ReadAll(file)
 	if err != nil {
 		return initSudoku(), errors.New("Error reading file")
 	}
@@ -136,7 +136,7 @@ func clearConsole() {
 	cmd.Run()
 }
 
-func checkUniqueSolutions (dirPath string) bool {
+func checkUniqueSolutions(dirPath string) bool {
 	return true
 }
 
@@ -145,7 +145,7 @@ func main() {
 	var mysudoku Sudoku = initSudoku()
 	PrintSudoku(mysudoku)
 	fmt.Println("")
-	//fmt.Println("Random Permutation:", randomPermutation([]int{1, 2, 3, 4, 5, 6, 7, 8, 9}))
+	fmt.Println("Random Permutation:", randomPermutation([]int{1, 2, 3, 4, 5, 6, 7, 8, 9}))
 	//time.Sleep(50 * time.Millisecond)
 	//fmt.Println(genSudokuParam(mysudoku))
 	//fmt.Println(readParam("./solutions/Params/example1.param"))
