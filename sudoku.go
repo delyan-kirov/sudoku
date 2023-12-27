@@ -13,7 +13,6 @@ import (
 	"strconv"
 	_ "strconv"
 	"strings"
-	"time"
 )
 
 type Sudoku [9][9]int
@@ -64,18 +63,6 @@ func printBlueLn(printStr string) {
 	colored := fmt.Sprintf("\x1b[%dm%s\x1b[0m", 34, printStr)
 	fmt.Printf(colored)
 	fmt.Println("")
-}
-
-func randomPermutation(numbers []int) []int {
-	rand.New(rand.NewSource(time.Now().UnixNano()))
-
-	// Use Fisher-Yates shuffle algorithm to permute the slice
-	for i := len(numbers) - 1; i > 0; i-- {
-		j := rand.Intn(i + 1)
-		numbers[i], numbers[j] = numbers[j], numbers[i]
-	}
-
-	return numbers
 }
 
 // PrintMatrix prints the matrix to the console.
@@ -141,41 +128,9 @@ func clearConsole() {
 	cmd.Run()
 }
 
-func countSolutions(param string) (int, error) {
-	const solutionPath = "./solutions/"
-	_, err := os.Stat(solutionPath + "Params/" + param)
-	if err != nil {
-		return 0, os.ErrNotExist
-	}
-	cmd := exec.Command("bash", "solve.sh", param)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	// Start the command
-	err = cmd.Start()
-	if err != nil {
-		fmt.Println("Error starting command:", err)
-		return 0, err
-	}
-
-	// Wait for the command to finish
-	err = cmd.Wait()
-	if err != nil {
-		fmt.Println("Command finished with error:", err)
-		return 0, err
-	}
-
-	solutions, err := filepath.Glob(solutionPath + "*.solution")
-	if err != nil {
-		return 0, err
-	}
-
-	return len(solutions), nil
-}
-
 func writeParam(sudoku Sudoku) (string, error) {
 	content := genSudokuParam(sudoku)
-	const paramPath = "./solutions/Params/"
+	const paramPath = "./solutions/"
 	paramFiles, err := filepath.Glob(paramPath + "*")
 	keyIndex := len(paramFiles)
 	if err != nil {
@@ -192,20 +147,6 @@ func writeParam(sudoku Sudoku) (string, error) {
 	}
 	defer newParamFile.Close()
 	return newParamPath, nil
-}
-
-func readSolution(solutionPath string) (string, error) {
-	file, err := os.Open(solutionPath)
-	if err != nil {
-		return "", errors.New("Error opening file")
-	}
-	defer file.Close()
-
-	content, err := io.ReadAll(file)
-	if err != nil {
-		return "", errors.New("Error reading file")
-	}
-	return string(content), nil
 }
 
 func solve_sudoku(sudoku Sudoku) (int, error) {
@@ -246,46 +187,45 @@ func solve_sudoku(sudoku Sudoku) (int, error) {
 		return 0, err
 	}
 	// clear cached files
+	cmd = exec.Command("bash", "./clear.sh")
+	cmd.Dir = "./solve"
+	cmd.Stderr = os.Stderr
+	err = cmd.Run()
+	if err != nil {
+		err = nil
+	}
 	return count_solutions, nil
 }
 
-func main() {
-	// clearConsole()
-	var mysudoku Sudoku = initSudoku()
-	// PrintSudoku(mysudoku)
-	// fmt.Println("")
-	// fmt.Println("Random Permutation:", randomPermutation([]int{1, 2, 3, 4, 5, 6, 7, 8, 9}))
-	// time.Sleep(50 * time.Millisecond)
-	// fmt.Println(genSudokuParam(mysudoku))
-	// fmt.Println(readParam("./solutions/Params/example1.param"))
-	var err error
-	mysudoku, err = readParam("./solutions/Params/example1.param")
-	if err != nil {
-		fmt.Println("Error:", err)
-		return
+func gen_rand_sudoku (curr_sudoku Sudoku) Sudoku {
+	// Check if sudoku is solved 
+	count := 0 
+	for _, row := range curr_sudoku {
+		if count != 0 { break }
+		for _, val := range row {
+			if val == 0 { count ++; break}
+		}
 	}
-	// fmt.Println(genSudokuParam(mysudoku))
-	// fmt.Println(writeParam(initSudoku()))
-	// fmt.Println(countSolutions("example1.param"))
-	// fmt.Println(readSolution("./solutions/Boards/sudoku-initial-000288.solution"))
-	fmt.Println(solve_sudoku(mysudoku))
+	if count == 0 { PrintSudoku(curr_sudoku); return curr_sudoku }
+	// Generate two random numbers in the range from 0 to 8
+	sudoku_row := rand.Intn(9)
+	sudoku_col := rand.Intn(9)
+	value_to_add := rand.Intn(9) + 1
+	if curr_sudoku[sudoku_row][sudoku_col] == 0 {
+		new_sudoku := curr_sudoku
+		new_sudoku[sudoku_row][sudoku_col] = value_to_add 
+		num_sudoku_sols, err := solve_sudoku(new_sudoku)
+		if err != nil { return (initSudoku()) }
+		if num_sudoku_sols == 0 { return gen_rand_sudoku(curr_sudoku) }
+		if num_sudoku_sols == 1 { return new_sudoku }
+		return gen_rand_sudoku(new_sudoku)
+	}
+
+	return gen_rand_sudoku(curr_sudoku)
 }
 
-// algorithm
-// 1. Start with a filled board
-// 2. Initialize a permutation index matrix
-// 3. Initialize an array with assigned null spaces
-// 2. Assign zero from the random index matrix
-// 3. Check for unique solutions
-// 4. If unique - add to assined array
-//    else create a new permutation index matrix by removing the indices assigned
-// 5. If assigned indices is full, stop
-
-// TODO
-// - [X] Create a parser to generate and read param files
-// - [ ] Make a function to solve a sudoku board from go
-// - [X] Create a function that counts the number of solutions
-// - [ ] Make it so that the initial block is randomly filled with numbers that work
-// // // - Algorithm
-// // // // - For each row - row a dice and decide to fill or not
-// // // // - If decided to fill, generate a random digit
+func main() {
+	sudoku := gen_rand_sudoku(initSudoku())
+	PrintSudoku(sudoku)
+	writeParam(sudoku)
+}
