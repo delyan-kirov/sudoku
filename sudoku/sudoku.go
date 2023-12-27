@@ -11,11 +11,59 @@ import (
 	"path/filepath"
 	"runtime"
 	"strconv"
-	_ "strconv"
 	"strings"
 )
 
 type Sudoku [9][9]int
+
+// Functions for pretty printing
+
+func printBlue(printStr string) {
+	colored := fmt.Sprintf("\x1b[%dm%s\x1b[0m", 34, printStr)
+	fmt.Printf(colored)
+}
+
+func printBlueLn(printStr string) {
+	colored := fmt.Sprintf("\x1b[%dm%s\x1b[0m", 34, printStr)
+	fmt.Printf(colored)
+	fmt.Println("")
+}
+
+func clearConsole() {
+	var cmd *exec.Cmd
+	if runtime.GOOS == "windows" {
+		cmd = exec.Command("cmd", "/c", "cls")
+	} else {
+		cmd = exec.Command("clear")
+	}
+	cmd.Stdout = os.Stdout
+	cmd.Run()
+}
+
+func PrintSudoku(sudoku Sudoku) {
+	const space = "    "
+	printBlueLn(space + "|-----------+-----------+-----------|")
+	for i := 0; i < 9; i++ {
+		fmt.Print(space)
+		for j := 0; j < 9; j++ {
+			if j%3 != 0 {
+				printBlue(" ")
+			} else {
+				printBlue("|")
+			}
+			fmt.Printf("%2d ", sudoku[i][j])
+		}
+		printBlue("|")
+		fmt.Println("")
+		if (i+1)%3 == 0 {
+			printBlueLn(space + "|-----------+-----------+-----------|")
+		} else {
+			printBlueLn(space + "|           |           |           |")
+		}
+	}
+}
+
+// Solving the sudoku
 
 func initSudoku() Sudoku {
 	var sudoku Sudoku
@@ -54,41 +102,6 @@ func genSudokuParam(sudoku Sudoku) string {
 	return "language Essence 1.3\n\n" + param + "\n   " + intRange + " ]\n"
 }
 
-func printBlue(printStr string) {
-	colored := fmt.Sprintf("\x1b[%dm%s\x1b[0m", 34, printStr)
-	fmt.Printf(colored)
-}
-
-func printBlueLn(printStr string) {
-	colored := fmt.Sprintf("\x1b[%dm%s\x1b[0m", 34, printStr)
-	fmt.Printf(colored)
-	fmt.Println("")
-}
-
-// PrintMatrix prints the matrix to the console.
-func PrintSudoku(sudoku Sudoku) {
-	const space = "    "
-	printBlueLn(space + "|-----------+-----------+-----------|")
-	for i := 0; i < 9; i++ {
-		fmt.Print(space)
-		for j := 0; j < 9; j++ {
-			if j%3 != 0 {
-				printBlue(" ")
-			} else {
-				printBlue("|")
-			}
-			fmt.Printf("%2d ", sudoku[i][j])
-		}
-		printBlue("|")
-		fmt.Println("")
-		if (i+1)%3 == 0 {
-			printBlueLn(space + "|-----------+-----------+-----------|")
-		} else {
-			printBlueLn(space + "|           |           |           |")
-		}
-	}
-}
-
 func readParam(filePath string) (Sudoku, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -115,17 +128,6 @@ func readParam(filePath string) (Sudoku, error) {
 		return initSudoku(), errors.New("Conversion to go array fail")
 	}
 	return paramArray, nil
-}
-
-func clearConsole() {
-	var cmd *exec.Cmd
-	if runtime.GOOS == "windows" {
-		cmd = exec.Command("cmd", "/c", "cls")
-	} else {
-		cmd = exec.Command("clear")
-	}
-	cmd.Stdout = os.Stdout
-	cmd.Run()
 }
 
 func writeParam(sudoku Sudoku) (string, error) {
@@ -194,6 +196,8 @@ func solve_sudoku(sudoku Sudoku) (int, error) {
 	return count_solutions, nil
 }
 
+// Generating the sudoku puzzle
+
 func gen_rand_sudoku(curr_sudoku Sudoku) Sudoku {
 	// Check if sudoku is solved
 	count := 0
@@ -212,7 +216,7 @@ func gen_rand_sudoku(curr_sudoku Sudoku) Sudoku {
 		PrintSudoku(curr_sudoku)
 		return curr_sudoku
 	}
-	// Generate two random numbers in the range from 0 to 8
+	// Make random assignment of an empty sudoku cell
 	sudoku_row := rand.Intn(9)
 	sudoku_col := rand.Intn(9)
 	value_to_add := rand.Intn(9) + 1
@@ -235,7 +239,7 @@ func gen_rand_sudoku(curr_sudoku Sudoku) Sudoku {
 	return gen_rand_sudoku(curr_sudoku)
 }
 
-func CreateSudoku () {
+func CreateSudoku() {
 	sudoku := gen_rand_sudoku(initSudoku())
 	PrintSudoku(sudoku)
 	writeParam(sudoku)
