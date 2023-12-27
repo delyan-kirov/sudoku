@@ -1,4 +1,4 @@
-package main
+package sudoku
 
 import (
 	"encoding/json"
@@ -152,7 +152,7 @@ func writeParam(sudoku Sudoku) (string, error) {
 func solve_sudoku(sudoku Sudoku) (int, error) {
 	sudoku_param := genSudokuParam(sudoku)
 	// Write param to file
-	file, err := os.Create("./solve/sudoku.param")
+	file, err := os.Create("./.solve/sudoku.param")
 	if err != nil {
 		fmt.Println("Error creating file:", err)
 		return 0, err
@@ -164,7 +164,7 @@ func solve_sudoku(sudoku Sudoku) (int, error) {
 	}
 	// solve param
 	cmd := exec.Command("bash", "./solve.sh")
-	cmd.Dir = "./solve"
+	cmd.Dir = "./.solve"
 	cmd.Stderr = os.Stderr
 	err = cmd.Run()
 	if err != nil {
@@ -173,58 +173,69 @@ func solve_sudoku(sudoku Sudoku) (int, error) {
 	}
 	// count solutions
 	count_solutions := 0
-	err = filepath.Walk("./solve/conjure-output/", func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if !info.IsDir() && strings.HasSuffix(info.Name(), ".solution") {
-			count_solutions++
-		}
-
-		return nil
-	})
+	err = filepath.Walk("./.solve/conjure-output/",
+		func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			if !info.IsDir() && strings.HasSuffix(info.Name(), ".solution") {
+				count_solutions++
+			}
+			return nil
+		})
 	if err != nil {
 		return 0, err
 	}
 	// clear cached files
 	cmd = exec.Command("bash", "./clear.sh")
-	cmd.Dir = "./solve"
+	cmd.Dir = "./.solve"
 	cmd.Stderr = os.Stderr
-	err = cmd.Run()
-	if err != nil {
-		err = nil
-	}
+	cmd.Run()
 	return count_solutions, nil
 }
 
-func gen_rand_sudoku (curr_sudoku Sudoku) Sudoku {
-	// Check if sudoku is solved 
-	count := 0 
+func gen_rand_sudoku(curr_sudoku Sudoku) Sudoku {
+	// Check if sudoku is solved
+	count := 0
 	for _, row := range curr_sudoku {
-		if count != 0 { break }
+		if count != 0 {
+			break
+		}
 		for _, val := range row {
-			if val == 0 { count ++; break}
+			if val == 0 {
+				count++
+				break
+			}
 		}
 	}
-	if count == 0 { PrintSudoku(curr_sudoku); return curr_sudoku }
+	if count == 0 {
+		PrintSudoku(curr_sudoku)
+		return curr_sudoku
+	}
 	// Generate two random numbers in the range from 0 to 8
 	sudoku_row := rand.Intn(9)
 	sudoku_col := rand.Intn(9)
 	value_to_add := rand.Intn(9) + 1
 	if curr_sudoku[sudoku_row][sudoku_col] == 0 {
 		new_sudoku := curr_sudoku
-		new_sudoku[sudoku_row][sudoku_col] = value_to_add 
+		new_sudoku[sudoku_row][sudoku_col] = value_to_add
 		num_sudoku_sols, err := solve_sudoku(new_sudoku)
-		if err != nil { return (initSudoku()) }
-		if num_sudoku_sols == 0 { return gen_rand_sudoku(curr_sudoku) }
-		if num_sudoku_sols == 1 { return new_sudoku }
+		if err != nil {
+			return (initSudoku())
+		}
+		if num_sudoku_sols == 0 {
+			return gen_rand_sudoku(curr_sudoku)
+		}
+		if num_sudoku_sols == 1 {
+			return new_sudoku
+		}
 		return gen_rand_sudoku(new_sudoku)
 	}
 
 	return gen_rand_sudoku(curr_sudoku)
 }
 
-func main() {
+func CreateSudoku () {
 	sudoku := gen_rand_sudoku(initSudoku())
 	PrintSudoku(sudoku)
 	writeParam(sudoku)
