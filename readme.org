@@ -95,7 +95,7 @@ For this project to work, you need a working version of [[https://conjure.readth
   go run main.go
         #+END_SRC
 
-This will save a new random sudoku inside the **solutions** folder.
+This will save a new random sudoku inside the *solutions* folder.
 
 
 
