@@ -91,7 +91,7 @@ Similarly, we can create boards that are harder with a simple recursive algorith
 
 For this project to work, you need a working version of [[https://conjure.readthedocs.io/en/latest/][conjure]]. A working compiler [[https://go.dev/][Go]] is also required. To begin generating, type:
 
-SRC bash
+#+BEGIN_SRC bash
   go run main.go
         #+END_SRC
 
