@@ -8,6 +8,7 @@ import (
 	"math/rand"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 	"strconv"
 	_ "strconv"
@@ -31,7 +32,7 @@ func genSudokuParam(sudoku Sudoku) string {
 	const intRange = "int(1..9)"
 	param := "letting initial be [ \n"
 	for i, row := range sudoku {
-		var stringRow = ""
+		stringRow := ""
 		for j, num := range row {
 			if j%3 == 0 && j != 0 {
 				stringRow = stringRow + "  "
@@ -45,9 +46,13 @@ func genSudokuParam(sudoku Sudoku) string {
 		if i%3 == 0 {
 			param = param + "\n"
 		}
-		param = param + "   [ " + stringRow + "; " + intRange + "], \n"
+		if i <= 7 {
+			param = param + "   [ " + stringRow + "; " + intRange + "], \n"
+		} else {
+			param = param + "   [ " + stringRow + "; " + intRange + "]; \n"
+		}
 	}
-	return "language Essence 1.3\n\n" + param + "\n   " + intRange + " ]"
+	return "language Essence 1.3\n\n" + param + "\n   " + intRange + " ]\n"
 }
 
 func printBlue(printStr string) {
@@ -136,27 +141,134 @@ func clearConsole() {
 	cmd.Run()
 }
 
-func checkUniqueSolutions(dirPath string) bool {
-	return true
+func countSolutions(param string) (int, error) {
+	const solutionPath = "./solutions/"
+	_, err := os.Stat(solutionPath + "Params/" + param)
+	if err != nil {
+		return 0, os.ErrNotExist
+	}
+	cmd := exec.Command("bash", "solve.sh", param)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	// Start the command
+	err = cmd.Start()
+	if err != nil {
+		fmt.Println("Error starting command:", err)
+		return 0, err
+	}
+
+	// Wait for the command to finish
+	err = cmd.Wait()
+	if err != nil {
+		fmt.Println("Command finished with error:", err)
+		return 0, err
+	}
+
+	solutions, err := filepath.Glob(solutionPath + "*.solution")
+	if err != nil {
+		return 0, err
+	}
+
+	return len(solutions), nil
+}
+
+func writeParam(sudoku Sudoku) (string, error) {
+	content := genSudokuParam(sudoku)
+	const paramPath = "./solutions/Params/"
+	paramFiles, err := filepath.Glob(paramPath + "*")
+	keyIndex := len(paramFiles)
+	if err != nil {
+		return "", err
+	}
+	newParamPath := paramPath + strconv.Itoa(keyIndex) + ".param"
+	newParamFile, err := os.Create(newParamPath)
+	if err != nil {
+		return "", errors.New("Could not create file")
+	}
+	_, err = newParamFile.Write([]byte(content))
+	if err != nil {
+		return "", err
+	}
+	defer newParamFile.Close()
+	return newParamPath, nil
+}
+
+func readSolution(solutionPath string) (string, error) {
+	file, err := os.Open(solutionPath)
+	if err != nil {
+		return "", errors.New("Error opening file")
+	}
+	defer file.Close()
+
+	content, err := io.ReadAll(file)
+	if err != nil {
+		return "", errors.New("Error reading file")
+	}
+	return string(content), nil
+}
+
+func solve_sudoku(sudoku Sudoku) (int, error) {
+	sudoku_param := genSudokuParam(sudoku)
+	// Write param to file
+	file, err := os.Create("./solve/sudoku.param")
+	if err != nil {
+		fmt.Println("Error creating file:", err)
+		return 0, err
+	}
+	_, err = io.WriteString(file, sudoku_param)
+	if err != nil {
+		fmt.Println("Error writing to file:", err)
+		return 0, err
+	}
+	// solve param
+	cmd := exec.Command("bash", "./solve.sh")
+	cmd.Dir = "./solve"
+	cmd.Stderr = os.Stderr
+	err = cmd.Run()
+	if err != nil {
+		fmt.Println("Error executing script:", err)
+		return 0, err
+	}
+	// count solutions
+	count_solutions := 0
+	err = filepath.Walk("./solve/conjure-output/", func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() && strings.HasSuffix(info.Name(), ".solution") {
+			count_solutions++
+		}
+
+		return nil
+	})
+	if err != nil {
+		return 0, err
+	}
+	// clear cached files
+	return count_solutions, nil
 }
 
 func main() {
-	//clearConsole()
+	// clearConsole()
 	var mysudoku Sudoku = initSudoku()
-	PrintSudoku(mysudoku)
-	fmt.Println("")
-	fmt.Println("Random Permutation:", randomPermutation([]int{1, 2, 3, 4, 5, 6, 7, 8, 9}))
-	//time.Sleep(50 * time.Millisecond)
-	//fmt.Println(genSudokuParam(mysudoku))
-	//fmt.Println(readParam("./solutions/Params/example1.param"))
+	// PrintSudoku(mysudoku)
+	// fmt.Println("")
+	// fmt.Println("Random Permutation:", randomPermutation([]int{1, 2, 3, 4, 5, 6, 7, 8, 9}))
+	// time.Sleep(50 * time.Millisecond)
+	// fmt.Println(genSudokuParam(mysudoku))
+	// fmt.Println(readParam("./solutions/Params/example1.param"))
 	var err error
 	mysudoku, err = readParam("./solutions/Params/example1.param")
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
 	}
-	fmt.Println(genSudokuParam(mysudoku))
-
+	// fmt.Println(genSudokuParam(mysudoku))
+	// fmt.Println(writeParam(initSudoku()))
+	// fmt.Println(countSolutions("example1.param"))
+	// fmt.Println(readSolution("./solutions/Boards/sudoku-initial-000288.solution"))
+	fmt.Println(solve_sudoku(mysudoku))
 }
 
 // algorithm
@@ -170,6 +282,10 @@ func main() {
 // 5. If assigned indices is full, stop
 
 // TODO
-// - [ ] Create a parser to generate and read param files
+// - [X] Create a parser to generate and read param files
 // - [ ] Make a function to solve a sudoku board from go
-// - [ ] Create a function that counts the number of solutions
+// - [X] Create a function that counts the number of solutions
+// - [ ] Make it so that the initial block is randomly filled with numbers that work
+// // // - Algorithm
+// // // // - For each row - row a dice and decide to fill or not
+// // // // - If decided to fill, generate a random digit

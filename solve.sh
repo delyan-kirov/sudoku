@@ -2,6 +2,10 @@
 
 cd ./solutions/
 
-rm -f *.solution 
+#rm -f *.solution 
 
-conjure solve -ac --number-of-solutions=all --solver=minion ./sudoku.essence ./Params/example1.param
+param="./Params/$1"
+
+conjure solve -ac --number-of-solutions=20 --solver=minion ./sudoku.essence $param
+
+# mv *.solutions ./solutions/Boards/
