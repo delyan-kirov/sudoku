@@ -151,6 +151,50 @@ func writeParam(sudoku Sudoku) (string, error) {
 	return newParamPath, nil
 }
 
+func IsValidSudoku(sudoku Sudoku) bool {
+	checkRepeats := func(arr []int) bool {
+		seen := make(map[int]bool)
+		for _, num := range arr {
+			if num == 0 {
+				continue
+			}
+			if seen[num] {
+				return false
+			}
+			seen[num] = true
+		}
+		return true
+	}
+
+	extractBlocks := func(sudoku Sudoku) [][]int {
+		blocks := make([][]int, 0, 9)
+		for rowStart := 0; rowStart < 9; rowStart += 3 {
+			for colStart := 0; colStart < 9; colStart += 3 {
+				block := make([]int, 0, 9)
+				for i := rowStart; i < rowStart+3; i++ {
+					for j := colStart; j < colStart+3; j++ {
+						block = append(block, sudoku[i][j])
+					}
+				}
+				blocks = append(blocks, block)
+			}
+		}
+		return blocks
+	}
+
+	blocks := extractBlocks(sudoku)
+	cols := make([]int, 9)
+	for i := 0; i < 9; i++ {
+		rows := sudoku[i][:]
+		if !checkRepeats(rows) ||
+			!checkRepeats(cols) ||
+			!checkRepeats(blocks[i]) {
+			return false
+		}
+	}
+	return true
+}
+
 func solve_sudoku(sudoku Sudoku) (int, error) {
 	sudoku_param := genSudokuParam(sudoku)
 	// Write param to file
@@ -199,32 +243,20 @@ func solve_sudoku(sudoku Sudoku) (int, error) {
 // Generating the sudoku puzzle
 
 func gen_rand_sudoku(curr_sudoku Sudoku) Sudoku {
-	// Check if sudoku is solved
-	count := 0
-	for _, row := range curr_sudoku {
-		if count != 0 {
-			break
-		}
-		for _, val := range row {
-			if val == 0 {
-				count++
-				break
-			}
-		}
-	}
-	if count == 0 {
-		PrintSudoku(curr_sudoku)
-		return curr_sudoku
-	}
 	// Make random assignment of an empty sudoku cell
 	sudoku_row := rand.Intn(9)
 	sudoku_col := rand.Intn(9)
 	value_to_add := rand.Intn(9) + 1
-	if curr_sudoku[sudoku_row][sudoku_col] == 0 {
-		new_sudoku := curr_sudoku
-		new_sudoku[sudoku_row][sudoku_col] = value_to_add
+	new_sudoku := curr_sudoku
+	new_sudoku[sudoku_row][sudoku_col] = value_to_add
+	is_free_pos := curr_sudoku[sudoku_row][sudoku_col] == 0
+	if !IsValidSudoku(new_sudoku) {
+		return gen_rand_sudoku(curr_sudoku)
+	}
+	if is_free_pos {
 		num_sudoku_sols, err := solve_sudoku(new_sudoku)
 		if err != nil {
+			fmt.Println("Error in solution process")
 			return (initSudoku())
 		}
 		if num_sudoku_sols == 0 {

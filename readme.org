@@ -2,7 +2,7 @@
 
 This is a program for solving and generating sudoku puzzles using SAT.
 
-The generated puzzles are guaranteed to have a unique solution, they are also completely random.
+The generated puzzles are guaranteed to have a unique solution, they are also completely random. Solutions are guaranteed to be as difficult as possible, that is, removing any number makes the sudoku solutions non unique. 
 
 The solver can find all possible solutions, if they exist. This is useful, as non random boards can be generated much faster, using an empty board as the starting state.
 
@@ -85,7 +85,6 @@ The main advantage of this approach is simplicity. Using the AI to solve the pro
 Other "low-level" approaches are faster, but not extendable. This approach can be used to generate other puzzles easily or add different constraints on top.
 
 One way to extend this, is by solving a random board and then asking the AI to give a simpler version with more spaces filled.
-Similarly, we can create boards that are harder with a simple recursive algorithm.
 
 * How to install
 
