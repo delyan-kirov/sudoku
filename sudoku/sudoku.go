@@ -51,7 +51,11 @@ func PrintSudoku(sudoku Sudoku) {
 			} else {
 				printBlue("|")
 			}
-			fmt.Printf("%2d ", sudoku[i][j])
+			if sudoku[i][j] == 0 {
+				fmt.Printf(" . ")
+			} else {
+				fmt.Printf("%2d ", sudoku[i][j])
+			}
 		}
 		printBlue("|")
 		fmt.Println("")
