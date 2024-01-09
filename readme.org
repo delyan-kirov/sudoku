@@ -98,6 +98,7 @@ This will save a new random sudoku inside the *solutions* folder.
 
 * TODO 
 
-- [ ] Finish the data module
+- [X] Finish the data module
+- [ ] Migrate data into database
 - [ ] Create a frontend app
 

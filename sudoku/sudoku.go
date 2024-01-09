@@ -69,7 +69,7 @@ func PrintSudoku(sudoku Sudoku) {
 
 // Solving the sudoku
 
-func initSudoku() Sudoku {
+func InitSudoku() Sudoku {
 	var sudoku Sudoku
 	for i := 0; i < 9; i++ {
 		for j := 0; j < 9; j++ {
@@ -106,16 +106,16 @@ func genSudokuParam(sudoku Sudoku) string {
 	return "language Essence 1.3\n\n" + param + "\n   " + intRange + " ]\n"
 }
 
-func readParam(filePath string) (Sudoku, error) {
+func ReadParam(filePath string) (Sudoku, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
-		return initSudoku(), errors.New("Error opening file")
+		return InitSudoku(), errors.New("Error opening file")
 	}
 	defer file.Close()
 
 	content, err := io.ReadAll(file)
 	if err != nil {
-		return initSudoku(), errors.New("Error reading file")
+		return InitSudoku(), errors.New("Error reading file")
 	}
 	param := string(content)
 	param = strings.ReplaceAll(param, "language Essence 1.3", "")
@@ -129,7 +129,7 @@ func readParam(filePath string) (Sudoku, error) {
 	var paramArray Sudoku
 	err = json.Unmarshal([]byte(param), &paramArray)
 	if err != nil {
-		return initSudoku(), errors.New("Conversion to go array fail")
+		return InitSudoku(), errors.New("Conversion to go array fail")
 	}
 	return paramArray, nil
 }
@@ -261,7 +261,7 @@ func gen_rand_sudoku(curr_sudoku Sudoku) Sudoku {
 		num_sudoku_sols, err := solve_sudoku(new_sudoku)
 		if err != nil {
 			fmt.Println("Error in solution process")
-			return (initSudoku())
+			return (InitSudoku())
 		}
 		if num_sudoku_sols == 0 {
 			return gen_rand_sudoku(curr_sudoku)
@@ -276,7 +276,7 @@ func gen_rand_sudoku(curr_sudoku Sudoku) Sudoku {
 }
 
 func CreateSudoku() {
-	sudoku := gen_rand_sudoku(initSudoku())
+	sudoku := gen_rand_sudoku(InitSudoku())
 	PrintSudoku(sudoku)
 	writeParam(sudoku)
 }
