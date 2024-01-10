@@ -4,7 +4,9 @@ import (
 	"database/sql"
 	"delyan-kirov/sudoku/sudoku"
 	"fmt"
+	"os/exec"
 	"strconv"
+	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -106,4 +108,58 @@ func Read(id int) (sudoku.Sudoku, error) {
 	}
 
 	return sudoku_board, nil
+}
+
+func Migrate() error {
+
+	// Count number of sudoku
+	sudoku_count := 0
+	cmd := exec.Command("bash", "-c", "find . -maxdepth 1 -type f | wc -l")
+	cmd.Dir = "./solutions"
+	bash_out, err := cmd.Output()
+	if err != nil {
+		return fmt.Errorf("failed to execute command: %w", err)
+	}
+
+	sudoku_count_raw := strings.TrimSpace(string(bash_out))
+	sudoku_count, err = strconv.Atoi(sudoku_count_raw)
+
+	if err != nil {
+		fmt.Println("ERROR: could not convert bash input to string")
+		return err
+	}
+
+	// Connect to database
+
+	db, err := sql.Open("sqlite3", db_file)
+	if err != nil {
+		fmt.Printf("ERROR: Could not extablish connection to the database\n")
+		return err
+	} 
+
+	var maxId int
+	err = db.QueryRow("SELECT MAX(id) FROM sudoku").Scan(&maxId)
+	if err != nil {
+		fmt.Println("ERROR: Could not find the largest elemenet from the sudoku")
+		fmt.Println("Likely cause: sudoku was not initialized")
+		return err
+	}
+
+	// Write to database
+
+	for i := maxId; i <= sudoku_count; i++ {
+		this_sudoku, err := sudoku.ReadParam(fmt.Sprintf("./solutions/%d.param", i-1))
+		if err != nil {
+			fmt.Printf("ERROR: Could not load sudoku %d file from solutions folder\n", i-1)
+			return err
+		}
+
+		err = Write(this_sudoku)
+		if err != nil {
+			fmt.Println("ERROR: Could not write sudoku to data base")
+			return err
+		}
+
+	}
+	return nil
 }
