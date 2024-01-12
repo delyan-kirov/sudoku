@@ -7,6 +7,10 @@
     <link rel="stylesheet" href="/static/styles.css" />
   </head>
   <body class="App">
+    <div>
+      <h1>Sudoku Game</h1>
+    </div>
+
     <div style="margin: 2%">
       <div class="SudokuBoard" id="sudoku-board"></div>
     </div>
@@ -20,6 +24,8 @@
 
     <script>
       document.addEventListener("DOMContentLoaded", function () {
+        // TODO: Need to find a way to get this data from the server 
+        // TODO: Need to add a session for users
         const initialBoard = [
           [5, 0, 4, 6, 7, 8, 9, 1, 2],
           [6, 0, 2, 1, 9, 5, 3, 4, 8],
@@ -114,24 +120,38 @@
         }
 
         function printBoard() {
-          console.log(editableBoard);
-        }
-
-        function updateDynamicMatrix() {
-          dynamicMatrixContainer.innerText = JSON.stringify(
-            editableBoard,
-            null,
-            2,
+          console.log(
+            editableBoard.map((array_row) =>
+              array_row.map((object_cell) => object_cell.value),
+            ),
           );
         }
 
         // Initial rendering
         renderBoard();
 
-        // Event listeners
         checkResultButton.addEventListener("click", function () {
-          printBoard();
-          updateDynamicMatrix();
+          const current_board = editableBoard.map((row) =>
+            row.map((cell) => cell.value),
+          );
+          const jsonData = JSON.stringify(current_board);
+          console.log("JSON Data:", jsonData);
+
+          fetch("/check_solution", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: jsonData,
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              console.log("Server response:", data);
+              // Handle the data returned by the server here
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+            });
         });
       });
     </script>
