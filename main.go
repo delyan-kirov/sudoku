@@ -1,9 +1,10 @@
 package main
 
 import (
-	"fmt"
-	// "delyan-kirov/sudoku/data"
+	"delyan-kirov/sudoku/data"
 	"delyan-kirov/sudoku/sudoku"
+	"fmt"
+
 	// "github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	// "net/http"
@@ -28,10 +29,24 @@ func main() {
 			fmt.Printf("Error parsing JSON: %v\n", err)
 			return
 		}
-		// fmt.Printf("Received JSON data: %v\n", jsonData)
-		sudoku.PrintSudoku(sudoku.Sudoku(jsonData))
+
+		sudoku_board := sudoku.Sudoku(jsonData)
+		sudoku.PrintSudoku(sudoku_board)
+
 		responseData := gin.H{"message": "Solution checked successfully", "checkedSolution": "example"}
 		c.JSON(200, responseData)
+	})
+
+	r.GET("/initial_board", func(c *gin.Context) {
+		initialBoard, err := data.Read(2)
+		if err != nil {
+			fmt.Println("Could not read the sudoku")
+			fmt.Printf("ERROR: %s\n", err)
+			c.JSON(500, gin.H{"error": "Internal Server Error"})
+			return
+		}
+
+		c.JSON(200, gin.H{"initialBoard": initialBoard})
 	})
 
 	port := ":8080"
