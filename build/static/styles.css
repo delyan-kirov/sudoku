@@ -1,13 +1,14 @@
 .App {
   text-align: center;
-  background-color: #282c34;
+  background-color: #081d28;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   font-size: calc(10px + 2vmin);
   color: white;
-  font-size: 36px;
+  font-size: 3vh;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .highlighted {
@@ -17,40 +18,30 @@
 
 td {
   box-sizing: border-box;
-  width: 60px;
-  height: 60px;
+  width: 6vh;
+  height: 6vh;
 }
 
 .separator {
-  display: block;
-  background-color: transparent;
-  width: 25px;
-  height: 25px;
-}
-
-button.CheckResult {
-  background-color: red;
-  font-size: 30px;
-  margin: 30px;
-  padding: 20px;
-  border-radius: 8px;
-  background-color: rgba(57, 188, 198, 0.5);
-  color: white;
-  border: none;
+  width: 1vh;
+  height: 1vh;
 }
 
 input[type="number"] {
   appearance: textfield;
-  font-size: 40px;
+  font-size: 1em;
   width: 100%;
   height: 100%;
   border: transparent;
-  /* outline: none; */
   text-align: center;
   color: white;
-  background-color: transparent;
+  background-color: rgba(20, 20, 20, 0.1);
   border-radius: 8px;
   padding: 0;
+}
+
+input:hover {
+  background-color: rgba(20, 20, 20, 0.4);
 }
 
 input::-webkit-outer-spin-button,
@@ -62,5 +53,23 @@ input::-webkit-inner-spin-button {
 .SudokuBoard {
   background-color: rgba(105, 90, 150, 0.3);
   border-radius: 12px;
+  padding: 1.5vh;
+}
+
+button.CheckResult {
+  font-size: 30px;
+  margin: 30px;
   padding: 20px;
+  border-radius: 8px;
+  background-color: rgba(105, 90, 150, 0.3);
+  color: white;
+  border: none;
+}
+
+button.CheckResult:hover {
+  background-color: rgba(105, 90, 150, 0.2);
+}
+
+button.CheckResult:active {
+  background-color: rgba(20, 20, 20, 0.9);
 }
