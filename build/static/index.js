@@ -124,7 +124,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // TODO:
-// - [ ] Add an index so that the user can chose to solve another sudoku 
+// - [ ] Add an index so that the user can chose to solve another sudoku
 // - [ ] Make it so that the database has the solutions
 // - [ ] Integrate the database init into the server logic
 // - [ ] Separate the javascript code

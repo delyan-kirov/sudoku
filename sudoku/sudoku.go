@@ -275,6 +275,9 @@ func gen_rand_sudoku(curr_sudoku Sudoku) Sudoku {
 	return gen_rand_sudoku(curr_sudoku)
 }
 
+// TODO: Make it so that the solutions of the sudokus are also stored inside the database
+// TODO: Rename package sudoku to puzzles
+
 func CreateSudoku() {
 	sudoku := gen_rand_sudoku(InitSudoku())
 	PrintSudoku(sudoku)

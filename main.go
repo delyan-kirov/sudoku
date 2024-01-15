@@ -5,22 +5,17 @@ import (
 	"delyan-kirov/sudoku/sudoku"
 	"fmt"
 
-	// "github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	// "net/http"
 )
 
 func main() {
 	r := gin.Default()
-
 	// Serve static files from the build directory
 	r.Static("/static", "./build/static")
 
 	r.GET("/", func(c *gin.Context) {
 		c.File("./build/index.html")
 	})
-
-	// r.Use(cors.Default())
 
 	r.POST("/check_solution", func(c *gin.Context) {
 		var jsonData [9][9]int
@@ -38,7 +33,7 @@ func main() {
 	})
 
 	r.GET("/initial_board", func(c *gin.Context) {
-		initialBoard, err := data.Read(2)
+		initialBoard, err := data.Read(32)
 		if err != nil {
 			fmt.Println("Could not read the sudoku")
 			fmt.Printf("ERROR: %s\n", err)

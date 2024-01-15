@@ -163,3 +163,5 @@ func Migrate() error {
 	}
 	return nil
 }
+
+// TODO: Make a function to store the solution of the sudokus generated
