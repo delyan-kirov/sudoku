@@ -1,31 +1,9 @@
 document.addEventListener("DOMContentLoaded", function () {
-  let currentBoard = [
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-  ];
+  let currentBoard = initializeBoard();
 
-  fetch("/initial_board")
-    .then((response) => response.json())
-    .then((data) => {
-      const serverInitialBoard = data.initialBoard;
-
-      // Update the currentBoard with the fetched data
-      currentBoard = serverInitialBoard.map((row) =>
-        row.map((cell) => ({
-          value: cell,
-          editable: cell === 0,
-        }))
-      );
-      console.log(currentBoard);
-
-      // Update the UI with the fetched data
+  fetchInitialBoardData()
+    .then((serverInitialBoard) => {
+      updateCurrentBoard(serverInitialBoard);
       renderBoard(currentBoard);
     })
     .catch((error) => {
@@ -34,6 +12,25 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const boardContainer = document.getElementById("sudoku-board");
   const checkResultButton = document.getElementById("check-result");
+
+  function initializeBoard() {
+    return Array.from(
+      { length: 9 },
+      () => Array(9).fill({ value: 0, editable: true }),
+    );
+  }
+
+  async function fetchInitialBoardData() {
+    const response = await fetch("/initial_board");
+      const data = await response.json();
+      return data.initialBoard;
+  }
+
+  function updateCurrentBoard(serverInitialBoard) {
+    currentBoard = serverInitialBoard.map((row) =>
+      row.map((cell) => ({ value: cell, editable: cell === 0 }))
+    );
+  }
 
   function renderBoard(board) {
     const table = document.createElement("table");
@@ -47,6 +44,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const input = document.createElement("input");
         input.type = "number";
         input.min = "1";
+        input.maxLength = 1;
+        input.pattern = [1 - 9];
         input.max = "9";
         input.value = cell.value === 0 ? "" : String(cell.value);
         input.dataset.row = String(rowIndex);
@@ -95,15 +94,16 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function handleCellChange(row, col, value) {
-    currentBoard[row][col].value = value;
+    if (currentBoard[row][col].editable) {
+      currentBoard[row][col].value = value;
+    }
   }
 
-  checkResultButton.addEventListener("click", function () {
+  function checkResult() {
     const current_board = currentBoard.map((row) =>
       row.map((cell) => cell.value)
     );
     const jsonData = JSON.stringify(current_board);
-    console.log("JSON Data:", jsonData);
 
     fetch("/check_solution", {
       method: "POST",
@@ -120,10 +120,22 @@ document.addEventListener("DOMContentLoaded", function () {
       .catch((error) => {
         console.error("Error:", error);
       });
+  }
+
+  // Event listeners
+  boardContainer.addEventListener("input", function (event) {
+    const inputElement = event.target;
+    const row = parseInt(inputElement.dataset.row, 10);
+    const col = parseInt(inputElement.dataset.col, 10);
+    const value = parseInt(inputElement.value, 10);
+    handleCellChange(row, col, value || 0);
   });
+
+  checkResultButton.addEventListener("click", checkResult);
 });
 
 // TODO:
+// - [ ] Create a demo in React 
 // - [ ] Add an index so that the user can chose to solve another sudoku
 // - [ ] Make it so that the database has the solutions
 // - [ ] Integrate the database init into the server logic

@@ -26,7 +26,7 @@ td {
     width: 40px;
     height: 40px;
   }
-  input[type="number"] {
+  input[type="text"] {
     font-size: 1em;
   }
 }
