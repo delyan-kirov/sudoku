@@ -199,7 +199,35 @@ func IsValidSudoku(sudoku Sudoku) bool {
 	return true
 }
 
-func solve_sudoku(sudoku Sudoku) (int, error) {
+func solve_sudoku(sudoku Sudoku) (Sudoku, error) {
+	sudoku_param := genSudokuParam(sudoku)
+	// Write param to file
+	file, err := os.Create("./.solve/sudoku.param")
+	if err != nil {
+		fmt.Println("Error creating file:", err)
+		return InitSudoku(), err
+	}
+	_, err = io.WriteString(file, sudoku_param)
+	if err != nil {
+		fmt.Println("Error writing to file:", err)
+		return InitSudoku(), err
+	}
+	// solve param
+	cmd := exec.Command("bash", "./solve.sh")
+	cmd.Dir = "./.solve"
+	cmd.Stderr = os.Stderr
+	err = cmd.Run()
+	if err != nil {
+		fmt.Println("Error executing script:", err)
+		return InitSudoku(), err
+	}
+	// TODO: Read the solution file 
+	// TODO: Parse the solution to a sudoku 
+	// TODO: Make a function to save sudoku to database
+	return InitSudoku(), nil
+}
+
+func check_sudoku_unique(sudoku Sudoku) (int, error) {
 	sudoku_param := genSudokuParam(sudoku)
 	// Write param to file
 	file, err := os.Create("./.solve/sudoku.param")
@@ -258,7 +286,7 @@ func gen_rand_sudoku(curr_sudoku Sudoku) Sudoku {
 		return gen_rand_sudoku(curr_sudoku)
 	}
 	if is_free_pos {
-		num_sudoku_sols, err := solve_sudoku(new_sudoku)
+		num_sudoku_sols, err := check_sudoku_unique(new_sudoku)
 		if err != nil {
 			fmt.Println("Error in solution process")
 			return (InitSudoku())
