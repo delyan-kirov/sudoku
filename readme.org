@@ -95,10 +95,3 @@ For this project to work, you need a working version of [[https://conjure.readth
         #+END_SRC
 
 This will save a new random sudoku inside the *solutions* folder.
-
-* TODO 
-
-- [X] Finish the data module
-- [x] Migrate data into database
-- [ ] Merge with the frontend app
-
