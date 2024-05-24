@@ -20,6 +20,8 @@ The actual solver uses a SAT model and looks for 2 solutions.
 
 * Preview
 
+Play yourself [[https://delyan-kirov.github.io/PersonalSite/#/sudoku][here]]!
+
 [[https://github.com/delyan-kirov/sudoku/blob/master/preview.png]]
 
 * SAT - solver model
