@@ -18,6 +18,10 @@ The algorithm to generate a random sudoku is as follows:
 
 The actual solver uses a SAT model and looks for 2 solutions. 
 
+* Preview
+
+[[https://github.com/delyan-kirov/sudoku/blob/master/preview.png]]
+
 * SAT - solver model
 
 #+NAME: Conjure Model
